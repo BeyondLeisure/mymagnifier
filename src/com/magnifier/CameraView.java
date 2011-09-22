@@ -23,6 +23,9 @@ public class CameraView extends Activity implements SurfaceHolder.Callback,
 	private static final String TAG = "CameraTest";
 	Camera mCamera;
 	boolean mPreviewRunning = false;
+	private final int DEFAULT_ZOOM = 1;
+	int zoomFactor = DEFAULT_ZOOM;
+	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -44,32 +47,10 @@ public class CameraView extends Activity implements SurfaceHolder.Callback,
 		super.onRestoreInstanceState(savedInstanceState);
 	}
 
-	/*Camera.PictureCallback mPictureCallback = new Camera.PictureCallback() {
-		public void onPictureTaken(byte[] imageData, Camera c) {
-
-			if (imageData != null) {
-
-				Intent mIntent = new Intent();
-
-				StoreByteImage(mContext, imageData, 50,
-						"ImageName");
-				mCamera.startPreview();
-
-				setResult(FOTO_MODE, mIntent);
-				finish();
-
-			}
-		}
-	};*/
-
 	protected void onResume() {
 		Log.e(TAG, "onResume");
 		super.onResume();
 	}
-
-	/*protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-	}*/
 
 	protected void onStop() {
 		Log.e(TAG, "onStop");
@@ -102,10 +83,19 @@ public class CameraView extends Activity implements SurfaceHolder.Callback,
 		mCamera.startPreview();
 		mPreviewRunning = true;
 		
+		boolean temp = p.isZoomSupported();
+		try{
+			if (p.isSmoothZoomSupported())
+				if (zoomFactor <= p.getMaxZoom())
+					mCamera.startSmoothZoom(zoomFactor);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		Log.e(TAG, "surfaceDestroyed");
+		mCamera.stopSmoothZoom();
 		mCamera.stopPreview();
 		mPreviewRunning = false;
 		mCamera.release();
@@ -113,50 +103,6 @@ public class CameraView extends Activity implements SurfaceHolder.Callback,
 
 	private SurfaceView mSurfaceView;
 	private SurfaceHolder mSurfaceHolder;
-
-	/*public void onClick(View arg0) {
-
-		mCamera.takePicture(null, mPictureCallback, mPictureCallback);
-
-	}*/
-	
-	/*public static boolean StoreByteImage(Context mContext, byte[] imageData,
-			int quality, String expName) {
-
-        File sdImageMainDirectory = new File("/sdcard");
-		FileOutputStream fileOutputStream = null;
-		String nameFile;
-		try {
-
-			BitmapFactory.Options options=new BitmapFactory.Options();
-			options.inSampleSize = 5;
-			
-			Bitmap myImage = BitmapFactory.decodeByteArray(imageData, 0,
-					imageData.length,options);
-
-			
-			fileOutputStream = new FileOutputStream(
-					sdImageMainDirectory.toString() +"/image.jpg");
-							
-  
-			BufferedOutputStream bos = new BufferedOutputStream(
-					fileOutputStream);
-
-			myImage.compress(CompressFormat.JPEG, quality, bos);
-
-			bos.flush();
-			bos.close();
-
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return true;
-	}*/
 
 	@Override
 	public void onClick(DialogInterface arg0, int arg1) {
