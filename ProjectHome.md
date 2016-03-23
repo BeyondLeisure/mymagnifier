@@ -1,0 +1,1 @@
+This is a simple magnifying application for Android 2.2 phones.
